@@ -628,8 +628,7 @@
     const copyStatus = { timer: null };
     let viewerEnabled = true;
 
-    const showCopyButtonStatus = (label, durationMs, disabled) => {
-      const copyJsonBtn = document.getElementById("copy-json");
+    const showCopyButtonStatus = (copyJsonBtn, label, durationMs, disabled) => {
       if (!copyJsonBtn) {
         return;
       }
@@ -641,12 +640,11 @@
       copyJsonBtn.textContent = label;
       copyJsonBtn.disabled = disabled;
       copyStatus.timer = window.setTimeout(() => {
-        const btn = document.getElementById("copy-json");
-        if (!btn) {
+        if (!copyJsonBtn.isConnected) {
           return;
         }
-        btn.textContent = defaultText;
-        btn.disabled = false;
+        copyJsonBtn.textContent = defaultText;
+        copyJsonBtn.disabled = false;
         copyStatus.timer = null;
       }, durationMs);
     };
@@ -746,10 +744,11 @@
       }
 
       if (target.id === "copy-json") {
+        const copyButton = target;
         void (async () => {
           const copied = await copyTextToClipboard(formattedJson);
           if (copied) {
-            showCopyButtonStatus("Copied", 1800, true);
+            showCopyButtonStatus(copyButton, "Copied", 1800, true);
           }
         })();
         return;
