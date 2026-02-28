@@ -1,6 +1,8 @@
 :root {
   color-scheme: dark light;
   --code-row-height: 19px;
+  --theme-transition-duration: 0.2s;
+  --theme-transition-easing: ease-in-out;
 }
 
 :root[data-theme='dark'] {
@@ -55,6 +57,9 @@ body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-viewer {
@@ -62,6 +67,7 @@ body {
   flex-direction: column;
   min-height: 100vh;
   font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  transition: background-color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 pre {
@@ -87,6 +93,9 @@ pre {
   z-index: 1;
   user-select: none;
   -webkit-user-select: none;
+  transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-toolbar button {
@@ -99,9 +108,9 @@ pre {
   user-select: none;
   -webkit-user-select: none;
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-toolbar button:not(:disabled):hover {
@@ -217,6 +226,9 @@ pre {
   line-height: var(--code-row-height);
   font-size: 0.92em;
   box-sizing: border-box;
+  transition:
+    border-color var(--theme-transition-duration) var(--theme-transition-easing),
+    color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 #json-editor.json-editor-raw #json-gutter {
@@ -248,6 +260,7 @@ pre {
   -webkit-user-select: none;
   -webkit-touch-callout: none;
   caret-color: transparent;
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .toggle-btn::selection {
@@ -288,40 +301,52 @@ pre {
 
 .json-key {
   color: var(--key);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-string {
   color: var(--string);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-number {
   color: var(--number);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-boolean {
   color: var(--bool);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-null {
   color: var(--null);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-colon,
 .json-comma {
   color: var(--punctuation);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-quote {
   color: var(--key);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-string-quote {
   color: var(--string);
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 :root[data-theme='dark'] .json-quote,
 :root[data-theme='dark'] .json-string-quote {
   color: var(--punctuation);
+}
+
+.json-brace {
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-brace-depth-0 {
@@ -338,6 +363,8 @@ pre {
 
 .json-ellipsis {
   color: var(--muted);
+
+  transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
 .json-error-title {
