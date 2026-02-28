@@ -62,17 +62,19 @@ test("nested object opener stays on the same line as object key", () => {
   const html = renderJsonToHtml({ meta: { id: 1 } });
   assert.match(
     html,
-    /<span class="json-key">meta<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><button class="toggle-btn" data-path="\$\.meta" aria-label="Collapse">▾<\/button><span class="json-brace [^"]+">{<\/span>/
+    /data-path="\$\.meta" aria-label="Collapse"><svg class="toggle-icon"[\s\S]*?<\/svg><\/button><\/span><span class="json-line-content"><span class="json-quote">"<\/span><span class="json-key">meta<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-brace [^"]+">{<\/span>/
   );
 });
 
 test("depth sequence is stable for nested objects", () => {
   const html = renderJsonToHtml({ meta: { id: 1 } });
-  const depths = [...html.matchAll(/--depth:(\d+)/g)].map((match) => Number(match[1]));
+  const depths = [...html.matchAll(/class="json-line" style="--depth:(\d+)"/g)].map((match) =>
+    Number(match[1])
+  );
   assert.deepEqual(depths, [0, 1, 2, 1, 0]);
 });
 
-test("array primitives and collapsed complex items share alignment prefix", () => {
+test("array primitives and collapsed complex items keep line-content alignment", () => {
   const html = renderJsonToHtml(
     [1, "string", true, null, { a: 1 }, [1, 2]],
     new Set(["$.5"])
@@ -80,15 +82,15 @@ test("array primitives and collapsed complex items share alignment prefix", () =
 
   assert.match(
     html,
-    /<div class="json-line" style="--depth:1"[^>]*><span class="json-prefix"><\/span><span class="json-number">1<\/span><span class="json-comma">,<\/span><\/div>/
+    /<div class="json-line" style="--depth:1"[^>]*>(?:<span class="json-guides"[^>]*>[\s\S]*?<\/span>)?<span class="json-line-toggle"><\/span><span class="json-line-content"><span class="json-number">1<\/span><span class="json-comma">,<\/span><\/span><\/div>/
   );
   assert.match(
     html,
-    /<span class="json-prefix"><\/span><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">a<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-number">1<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-comma">,<\/span>/
+    /<span class="json-line-content"><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">a<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-number">1<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-comma">,<\/span><\/span>/
   );
   assert.match(
     html,
-    /<span class="json-prefix"><\/span><span class="json-brace [^"]+">\[<\/span><span class="json-number">1<\/span><span class="json-comma">, <\/span><span class="json-number">2<\/span><span class="json-brace [^"]+">\]<\/span>/
+    /<span class="json-line-content"><span class="json-brace [^"]+">\[<\/span><span class="json-number">1<\/span><span class="json-comma">, <\/span><span class="json-number">2<\/span><span class="json-brace [^"]+">\]<\/span><\/span>/
   );
 });
 
@@ -115,7 +117,9 @@ test("long arrays with objects stay multiline", () => {
     ],
   });
 
-  const depths = [...html.matchAll(/--depth:(\d+)/g)].map((match) => Number(match[1]));
+  const depths = [...html.matchAll(/class="json-line" style="--depth:(\d+)"/g)].map((match) =>
+    Number(match[1])
+  );
   assert.deepEqual(depths, [0, 1, 2, 2, 1, 0]);
 });
 
@@ -129,7 +133,7 @@ test("short objects inside multiline arrays render in one line each", () => {
 
   assert.match(
     html,
-    /<div class="json-line" style="--depth:2"[^>]*><span class="json-prefix"><\/span><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">type<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">text<\/span><span class="json-string-quote">"<\/span><span class="json-comma">, <\/span><span class="json-quote">"<\/span><span class="json-key">content<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">hello<\/span><span class="json-string-quote">"<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-comma">,<\/span><\/div>/
+    /<div class="json-line" style="--depth:2"[^>]*>(?:<span class="json-guides"[^>]*>[\s\S]*?<\/span>)?<span class="json-line-toggle"><\/span><span class="json-line-content"><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">type<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">text<\/span><span class="json-string-quote">"<\/span><span class="json-comma">, <\/span><span class="json-quote">"<\/span><span class="json-key">content<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">hello<\/span><span class="json-string-quote">"<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-comma">,<\/span><\/span><\/div>/
   );
 });
 
@@ -215,6 +219,10 @@ test("collapsed blocks preserve virtual line numbers with jumps", () => {
   );
   const lines = [...html.matchAll(/data-line="(\d+)"/g)].map((match) => Number(match[1]));
   assert.deepEqual(lines, [1, 2, 6, 7]);
+  assert.doesNotMatch(
+    html,
+    /data-line="2"[^>]*><span class="json-guides"/
+  );
 });
 
 test("toggleCollapsedPath flips path state", () => {

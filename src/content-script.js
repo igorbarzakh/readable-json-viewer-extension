@@ -330,6 +330,13 @@
     return appendComma ? '<span class="json-comma">,</span>' : "";
   }
 
+  function renderToggleButton(path, ariaLabel) {
+    const stateClass = ariaLabel === "Expand" ? "is-collapsed" : "is-expanded";
+    return `<button class="toggle-btn ${stateClass}" data-path="${escapeHtml(path)}" aria-label="${ariaLabel}"${
+      path === "$" ? ' data-root="1"' : ""
+    }><svg class="toggle-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M19.543 7.54309c0.3905 -0.39052 1.0235 -0.39052 1.414 0 0.3905 0.39053 0.3905 1.02356 0 1.41406l-8.25 8.25005c-0.3661 0.366 -0.9451 0.3886 -1.3379 0.0683l-0.0761 -0.0683 -8.25003 -8.25005c-0.39053 -0.39052 -0.39053 -1.02353 0 -1.41406 0.39052 -0.39052 1.02354 -0.39052 1.41406 0L12 15.0861z"></path></svg></button>`;
+  }
+
   function countExpandedLines(value, path, keyLabel) {
     if (typeof value !== "object" || value === null) {
       return 1;
@@ -431,39 +438,47 @@
     return "";
   }
 
-  function inlineContainerWrap(path, keyLabel, contentHtml) {
-    const isArrayItem = keyLabel === null && path !== "$";
-    if (isArrayItem) {
-      return `<span class="json-prefix"></span>${contentHtml}`;
+  function renderGuides(activeGuides, guideStarts) {
+    if (!Array.isArray(activeGuides) || activeGuides.length === 0) {
+      return "";
     }
-    return contentHtml;
+    return `<span class="json-guides" aria-hidden="true">${activeGuides
+      .map(
+        (guideDepth) =>
+          `<span class="json-guide json-guide-depth-${normalizeBraceDepth(
+            guideDepth
+          )}${guideStarts.has(guideDepth) ? " json-guide-start" : ""}" style="--depth:${guideDepth + 1}"></span>`
+      )
+      .join("")}</span>`;
   }
 
-  function renderLine(depth, content, lineNumber) {
-    return `<div class="json-line" style="--depth:${depth}" data-line="${lineNumber}">${content}</div>`;
+  function markGuideClassOnLine(lineHtml, guideDepth, className) {
+    const depthValue = guideDepth + 1;
+    return lineHtml.replace(
+      new RegExp(
+        `<span class="json-guide([^"]*)" style="--depth:${depthValue}"><\\/span>`
+      ),
+      `<span class="json-guide$1 ${className}" style="--depth:${depthValue}"></span>`
+    );
   }
 
-  function withArrayPrefix(path, keyLabel, inner) {
-    const isArrayItem = keyLabel === null && path !== "$";
-    if (!isArrayItem) {
-      return inner;
-    }
-    return `<span class="json-prefix"></span>${inner}`;
-  }
-
-  function withArrayToggle(path, keyLabel, buttonHtml, contentHtml) {
-    if (path === "$") {
-      return `<span class="root-toggle-wrap">${buttonHtml}</span>${contentHtml}`;
-    }
-    const isArrayItem = keyLabel === null && path !== "$";
-    if (!isArrayItem) {
-      return `${buttonHtml}${contentHtml}`;
-    }
-    return `<span class="json-prefix">${buttonHtml}</span>${contentHtml}`;
+  function renderLine(
+    depth,
+    content,
+    lineNumber,
+    activeGuides = [],
+    guideStarts = new Set(),
+    toggleHtml = ""
+  ) {
+    const toggleClass = toggleHtml ? "json-line-toggle has-toggle" : "json-line-toggle";
+    return `<div class="json-line" style="--depth:${depth}" data-line="${lineNumber}">${renderGuides(
+      activeGuides,
+      guideStarts
+    )}<span class="${toggleClass}">${toggleHtml}</span><span class="json-line-content">${content}</span></div>`;
   }
 
   function renderValueLines(value, context) {
-    const { path, depth, collapsedPaths, keyLabel, appendComma, lineState } = context;
+    const { path, depth, collapsedPaths, keyLabel, appendComma, lineState, activeGuides, guideStarts } = context;
     const comma = renderLineComma(appendComma);
     const keyPart =
       keyLabel === null
@@ -476,8 +491,10 @@
       return [
         renderLine(
           depth,
-          withArrayPrefix(path, keyLabel, `${keyPart}${renderPrimitive(value)}${comma}`),
-          lineNumber
+          `${keyPart}${renderPrimitive(value)}${comma}`,
+          lineNumber,
+          activeGuides,
+          guideStarts
         ),
       ];
     }
@@ -488,8 +505,10 @@
       return [
         renderLine(
           depth,
-          withArrayPrefix(path, keyLabel, `${renderInlineObject(value, depth)}${comma}`),
-          lineNumber
+          `${renderInlineObject(value, depth)}${comma}`,
+          lineNumber,
+          activeGuides,
+          guideStarts
         ),
       ];
     }
@@ -508,12 +527,10 @@
       return [
         renderLine(
           depth,
-          withArrayPrefix(
-            path,
-            keyLabel,
-            `${keyPart}${renderBraceToken(open, depth)}${renderBraceToken(close, depth)}${comma}`
-          ),
-          lineNumber
+          `${keyPart}${renderBraceToken(open, depth)}${renderBraceToken(close, depth)}${comma}`,
+          lineNumber,
+          activeGuides,
+          guideStarts
         ),
       ];
     }
@@ -521,41 +538,25 @@
     if (canInlineCollection(value, path)) {
       const lineNumber = lineState.current;
       lineState.current += 1;
-      const inlineLine = `${keyPart}${inlineContainerWrap(
-        path,
-        keyLabel,
-        renderInlineCollection(value, depth)
-      )}${comma}`;
-      return [renderLine(depth, inlineLine, lineNumber)];
+      const inlineLine = `${keyPart}${renderInlineCollection(value, depth)}${comma}`;
+      return [renderLine(depth, inlineLine, lineNumber, activeGuides, guideStarts)];
     }
 
     if (collapsed) {
       const lineNumber = lineState.current;
       const expandedLines = countExpandedLines(value, path, keyLabel);
       lineState.current += expandedLines;
-      const collapsedLine = `${keyPart}${withArrayToggle(
-        path,
-        keyLabel,
-        `<button class="toggle-btn" data-path="${escapeHtml(path)}" aria-label="Expand"${
-          path === "$" ? ' data-root="1"' : ""
-        }>▸</button>`,
-        `${renderBraceToken(open, depth)}<span class="json-ellipsis">…</span>${renderBraceToken(close, depth)}`
-      )}${comma}`;
-      return [renderLine(depth, collapsedLine, lineNumber)];
+      const toggleButton = renderToggleButton(path, "Expand");
+      const collapsedLine = `${keyPart}${renderBraceToken(open, depth)}<span class="json-ellipsis">…</span>${renderBraceToken(close, depth)}${comma}`;
+      return [renderLine(depth, collapsedLine, lineNumber, [], new Set(), toggleButton)];
     }
 
     const lines = [];
     const openLineNumber = lineState.current;
     lineState.current += 1;
-    const openLine = `${keyPart}${withArrayToggle(
-      path,
-      keyLabel,
-      `<button class="toggle-btn" data-path="${escapeHtml(path)}" aria-label="Collapse"${
-        path === "$" ? ' data-root="1"' : ""
-      }>▾</button>`,
-      renderBraceToken(open, depth)
-    )}`;
-    lines.push(renderLine(depth, openLine, openLineNumber));
+    const toggleButton = renderToggleButton(path, "Collapse");
+    const openLine = `${keyPart}${renderBraceToken(open, depth)}`;
+    lines.push(renderLine(depth, openLine, openLineNumber, activeGuides, guideStarts, toggleButton));
 
     for (let index = 0; index < entries.length; index += 1) {
       const [entryKey, entryValue] = entries[index];
@@ -567,13 +568,27 @@
           keyLabel: isArray ? null : entryKey,
           appendComma: index < entries.length - 1,
           lineState,
+          activeGuides: [...activeGuides, depth],
+          guideStarts: index === 0 ? new Set([depth]) : new Set(),
         })
       );
     }
 
+    if (lines.length > 0) {
+      lines[lines.length - 1] = markGuideClassOnLine(lines[lines.length - 1], depth, "json-guide-end");
+    }
+
     const closeLineNumber = lineState.current;
     lineState.current += 1;
-    lines.push(renderLine(depth, `${renderBraceToken(close, depth)}${comma}`, closeLineNumber));
+    lines.push(
+      renderLine(
+        depth,
+        `${renderBraceToken(close, depth)}${comma}`,
+        closeLineNumber,
+        activeGuides,
+        new Set()
+      )
+    );
     return lines;
   }
 
@@ -586,6 +601,8 @@
       keyLabel: null,
       appendComma: false,
       lineState,
+      activeGuides: [],
+      guideStarts: new Set(),
     });
     return `<div class="json-root">${lines.join("")}</div>`;
   }
