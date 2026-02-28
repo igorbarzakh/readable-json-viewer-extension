@@ -218,7 +218,7 @@
     const safeLabel = "Copy";
     if (isDone) {
       const doneSvg =
-        '<svg class="copy-done-icon" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" focusable="false"><path fill="currentColor" d="M16.293 5.29327c1.2189 -1.21895 3.1951 -1.21895 4.414 0 1.2187 1.21898 1.2189 3.1952 0 4.41407l-9.0859 9.08596c-1.1715 1.1712 -3.07065 1.1711 -4.24219 0l-4.08594 -4.086c-1.21894 -1.2189 -1.21891 -3.1951 0 -4.414 1.21895 -1.21898 3.19511 -1.21898 4.41406 0L9.5 12.0862z"></path></svg>';
+        '<svg class="copy-done-icon" viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false"><path fill="currentColor" d="M14.364 3.407a1 1 0 0 1 0 1.414L6.869 12.317a1.0667 1.0667 0 0 1 -1.509 0L1.636 8.593a1 1 0 1 1 1.414 -1.414l3.064 3.064L12.949 3.407a1 1 0 0 1 1.415 0Z"></path></svg>';
       return `${doneSvg}<span class="copy-label">${safeLabel}</span>`;
     }
     const iconSvg =
