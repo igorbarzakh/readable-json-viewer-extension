@@ -10,6 +10,14 @@ export function isJsonUrl(url) {
   return /\.json(?:$|[?#])/i.test(url);
 }
 
+export function isJsonDocument(url, contentType) {
+  if (isJsonUrl(url)) {
+    return true;
+  }
+  const type = String(contentType || '').toLowerCase();
+  return type.includes('application/json') || type.includes('text/json') || type.includes('+json');
+}
+
 export function parseJsonText(text) {
   try {
     return { ok: true, value: JSON.parse(text) };

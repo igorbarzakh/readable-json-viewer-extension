@@ -11,6 +11,18 @@
     return /\.json(?:$|[?#])/i.test(url);
   }
 
+  function isJsonDocument(url, contentType) {
+    if (isJsonUrl(url)) {
+      return true;
+    }
+    const type = String(contentType || "").toLowerCase();
+    return (
+      type.includes("application/json") ||
+      type.includes("text/json") ||
+      type.includes("+json")
+    );
+  }
+
   function parseJsonText(text) {
     try {
       return { ok: true, value: JSON.parse(text) };
@@ -569,7 +581,7 @@
   }
 
   function initJsonViewer() {
-    if (!document.body || !isJsonUrl(window.location.href)) {
+    if (!document.body || !isJsonDocument(window.location.href, document.contentType)) {
       return;
     }
 

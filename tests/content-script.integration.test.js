@@ -5,7 +5,7 @@ import { JSDOM } from "jsdom";
 
 const scriptSource = readFileSync(new URL("../src/content-script.js", import.meta.url), "utf8");
 
-function createDom(sourceText, url) {
+function createDom(sourceText, url, contentType = "text/html") {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {
     url,
     runScripts: "dangerously",
@@ -27,6 +27,13 @@ function createDom(sourceText, url) {
     matches: false,
     addEventListener() {},
     removeEventListener() {},
+  });
+
+  Object.defineProperty(window.document, "contentType", {
+    configurable: true,
+    get() {
+      return contentType;
+    },
   });
 
   window.document.body.innerText = sourceText;
@@ -96,6 +103,20 @@ test("invalid JSON renders editor without gutter column", () => {
   assert.ok(gutter);
   assert.equal(editor.classList.contains("json-editor-raw"), true);
   assert.equal(gutter.innerHTML, "");
+
+  dom.window.close();
+});
+
+test("activates on json content-type even when url has no .json suffix", () => {
+  const raw = '[{"id":1,"title":"post"}]';
+  const dom = createDom(raw, "https://jsonplaceholder.typicode.com/posts", "application/json");
+  const { window } = dom;
+
+  window.eval(scriptSource);
+
+  const container = window.document.getElementById("json-container");
+  assert.ok(container);
+  assert.match(container.innerHTML, /json-key/);
 
   dom.window.close();
 });

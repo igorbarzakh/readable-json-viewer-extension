@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   isJsonUrl,
+  isJsonDocument,
   parseJsonText,
   renderJsonToHtml,
   toggleCollapsedPath,
@@ -21,6 +22,16 @@ test("isJsonUrl matches only .json urls", () => {
   assert.equal(isJsonUrl("https://example.com/data.json#top"), true);
   assert.equal(isJsonUrl("https://example.com/data.txt"), false);
   assert.equal(isJsonUrl("https://example.com/json"), false);
+});
+
+test("isJsonDocument matches json url suffix and json content-type", () => {
+  assert.equal(isJsonDocument("https://example.com/data.json", "text/html"), true);
+  assert.equal(
+    isJsonDocument("https://jsonplaceholder.typicode.com/posts", "application/json; charset=utf-8"),
+    true
+  );
+  assert.equal(isJsonDocument("https://example.com/api", "application/problem+json"), true);
+  assert.equal(isJsonDocument("https://example.com/page", "text/html"), false);
 });
 
 test("parseJsonText parses valid JSON", () => {
