@@ -411,6 +411,17 @@ function renderValueLines(value, context) {
     ];
   }
 
+  if (canInlineCollection(value, path)) {
+    const lineNumber = lineState.current;
+    lineState.current += 1;
+    const inlineLine = `${keyPart}${inlineContainerWrap(
+      path,
+      keyLabel,
+      renderInlineCollection(value, depth),
+    )}${comma}`;
+    return [renderLine(depth, inlineLine, lineNumber)];
+  }
+
   if (collapsed) {
     const lineNumber = lineState.current;
     const expandedLines = countExpandedLines(value, path, keyLabel);
@@ -425,17 +436,6 @@ function renderValueLines(value, context) {
     )}${comma}`;
     return [renderLine(depth, collapsedLine, lineNumber)];
   }
-
-    if (canInlineCollection(value, path)) {
-      const lineNumber = lineState.current;
-      lineState.current += 1;
-      const inlineLine = `${keyPart}${inlineContainerWrap(
-        path,
-        keyLabel,
-        renderInlineCollection(value, depth),
-      )}${comma}`;
-      return [renderLine(depth, inlineLine, lineNumber)];
-    }
 
   const lines = [];
   const openLineNumber = lineState.current;

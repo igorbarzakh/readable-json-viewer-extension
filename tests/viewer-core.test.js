@@ -88,7 +88,7 @@ test("array primitives and collapsed complex items share alignment prefix", () =
   );
   assert.match(
     html,
-    /<span class="json-prefix"><button class="toggle-btn" data-path="\$\.5" aria-label="Expand">▸<\/button><\/span><span class="json-brace [^"]+">\[<\/span><span class="json-ellipsis">…<\/span><span class="json-brace [^"]+">\]<\/span>/
+    /<span class="json-prefix"><\/span><span class="json-brace [^"]+">\[<\/span><span class="json-number">1<\/span><span class="json-comma">, <\/span><span class="json-number">2<\/span><span class="json-brace [^"]+">\]<\/span>/
   );
 });
 
@@ -142,6 +142,24 @@ test("very short nested arrays with short objects can stay inline", () => {
     html,
     /<span class="json-brace [^"]+">\[<\/span><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">subItem<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">A<\/span><span class="json-string-quote">"<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-comma">, <\/span><span class="json-brace [^"]+">{<\/span> <span class="json-quote">"<\/span><span class="json-key">subItem<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-string-quote">"<\/span><span class="json-string">B<\/span><span class="json-string-quote">"<\/span> <span class="json-brace [^"]+">}<\/span><span class="json-brace [^"]+">\]<\/span>/
   );
+});
+
+test("inline collections stay expanded even if their path is marked collapsed", () => {
+  const html = renderJsonToHtml(
+    {
+      meta: {
+        features: ["search", "analytics", "notifications"],
+      },
+    },
+    new Set(["$.meta.features"])
+  );
+
+  assert.match(
+    html,
+    /<span class="json-key">features<\/span><span class="json-quote">"<\/span><span class="json-colon">: <\/span><span class="json-brace [^"]+">\[<\/span>/
+  );
+  assert.doesNotMatch(html, /data-path="\$\.meta\.features"/);
+  assert.doesNotMatch(html, /json-ellipsis/);
 });
 
 test("quotes use dedicated token class", () => {

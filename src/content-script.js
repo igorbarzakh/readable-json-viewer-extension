@@ -518,6 +518,17 @@
       ];
     }
 
+    if (canInlineCollection(value, path)) {
+      const lineNumber = lineState.current;
+      lineState.current += 1;
+      const inlineLine = `${keyPart}${inlineContainerWrap(
+        path,
+        keyLabel,
+        renderInlineCollection(value, depth)
+      )}${comma}`;
+      return [renderLine(depth, inlineLine, lineNumber)];
+    }
+
     if (collapsed) {
       const lineNumber = lineState.current;
       const expandedLines = countExpandedLines(value, path, keyLabel);
@@ -531,17 +542,6 @@
         `${renderBraceToken(open, depth)}<span class="json-ellipsis">…</span>${renderBraceToken(close, depth)}`
       )}${comma}`;
       return [renderLine(depth, collapsedLine, lineNumber)];
-    }
-
-    if (canInlineCollection(value, path)) {
-      const lineNumber = lineState.current;
-      lineState.current += 1;
-      const inlineLine = `${keyPart}${inlineContainerWrap(
-        path,
-        keyLabel,
-        renderInlineCollection(value, depth)
-      )}${comma}`;
-      return [renderLine(depth, inlineLine, lineNumber)];
     }
 
     const lines = [];

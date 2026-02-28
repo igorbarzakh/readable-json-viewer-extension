@@ -351,3 +351,33 @@ test("toggle all button collapses and expands tree", () => {
 
   dom.window.close();
 });
+
+test("after collapse-all, inline arrays do not remain collapsed when parent is expanded", () => {
+  const raw = '{"meta":{"features":["search","analytics","notifications"],"id":1},"other":{"x":1}}';
+  const dom = createDom(raw, "https://example.com/data.json");
+  const { window } = dom;
+
+  window.eval(scriptSource);
+
+  const toggleAllBtn = window.document.getElementById("toggle-all");
+  const container = window.document.getElementById("json-container");
+  assert.ok(toggleAllBtn);
+  assert.ok(container);
+
+  toggleAllBtn.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+
+  const rootToggle = container.querySelector('.toggle-btn[data-path="$"]');
+  assert.ok(rootToggle);
+  rootToggle.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+  const metaToggle = container.querySelector('.toggle-btn[data-path="$.meta"]');
+  assert.ok(metaToggle);
+  metaToggle.dispatchEvent(new window.MouseEvent("click", { bubbles: true }));
+
+  assert.equal(container.innerHTML.includes('data-path="$.meta.features"'), false);
+  assert.match(
+    container.textContent || "",
+    /"features":\s*\["search",\s*"analytics",\s*"notifications"\]/
+  );
+
+  dom.window.close();
+});
