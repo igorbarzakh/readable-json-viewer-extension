@@ -58,6 +58,8 @@ body {
 }
 
 .json-viewer {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 }
@@ -107,17 +109,73 @@ pre {
   border-color: var(--btn-hover-border);
 }
 
-#toggle-viewer {
-  min-width: 112px;
-}
-
 #toggle-theme {
   margin-left: auto;
-  min-width: 110px;
+  min-width: 72px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#toggle-theme .theme-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none;
+}
+
+#toggle-theme .theme-label {
+  line-height: 1;
+  pointer-events: none;
 }
 
 #copy-json {
-  min-width: 92px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#copy-json .copy-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none;
+}
+
+#copy-json .copy-done-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none;
+}
+
+#copy-json .copy-label {
+  line-height: 1;
+  pointer-events: none;
+}
+
+#toggle-all {
+  width: 111px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  padding-left: 10px;
+}
+
+#toggle-all .toggle-all-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  pointer-events: none;
+}
+
+#toggle-all .toggle-all-label {
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .json-toolbar button:disabled {
@@ -138,9 +196,10 @@ pre {
 }
 
 #json-editor {
+  flex: 1;
   display: grid;
   grid-template-columns: auto 1fr;
-  align-items: start;
+  align-items: stretch;
 }
 
 #json-editor.json-editor-raw {
@@ -157,6 +216,7 @@ pre {
   min-width: 3ch;
   line-height: var(--code-row-height);
   font-size: 0.92em;
+  box-sizing: border-box;
 }
 
 #json-editor.json-editor-raw #json-gutter {
