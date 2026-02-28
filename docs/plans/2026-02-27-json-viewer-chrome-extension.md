@@ -1,6 +1,7 @@
 # JSON Viewer Chrome Extension Implementation Plan
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
+> **Historical note:** this document captures the initial implementation scope. Current behavior also supports JSON pages detected by `Content-Type` (not only `.json` URL suffix).
 
 **Goal:** Build a Chrome extension that only activates on `.json` URLs and renders JSON in a code-editor-like view with collapsible nodes.
 

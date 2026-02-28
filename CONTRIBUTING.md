@@ -28,7 +28,9 @@ npm install
 
 ## Code Change Rules
 
-1. Keep extension scope limited to `.json` pages.
+1. Keep extension scope limited to JSON documents only:
+   - `.json` URLs
+   - and pages with JSON `Content-Type` (`application/json`, `text/json`, `+json`)
 2. Minimize manifest permission changes.
 3. Add/adjust tests for behavior changes.
 4. Do not break existing toolbar UX and copy flows.

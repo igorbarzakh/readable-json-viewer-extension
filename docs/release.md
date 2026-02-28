@@ -37,7 +37,9 @@ Output:
 2. Enable Developer mode
 3. Load unpacked `dist/`
 4. Verify:
-   - valid `.json` renders correctly
+   - valid JSON renders correctly on:
+     - `.json` URLs
+     - JSON API pages with JSON `Content-Type` (e.g. `https://jsonplaceholder.typicode.com/posts`)
    - collapse/expand works
    - line numbers fold-aware jumps are correct
    - `Copy JSON` works and button status resets

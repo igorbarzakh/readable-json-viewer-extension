@@ -9,14 +9,16 @@ Project-level instructions for AI coding agents working in this repository.
 
 ## Project Purpose
 
-- Chrome Extension (Manifest V3) that formats `.json` pages into a readable, collapsible, editor-like view.
+- Chrome Extension (Manifest V3) that formats JSON documents into a readable, collapsible, editor-like view.
 - Main runtime entrypoint: `src/content-script.js`.
 - Core pure logic module: `src/viewer-core.js`.
 - Styling: `src/styles.css`.
 
 ## Non-Negotiable Rules
 
-1. Preserve behavior for `.json` pages only.
+1. Preserve behavior for JSON documents only:
+   - `.json` URLs
+   - JSON `Content-Type` documents (`application/json`, `text/json`, `+json`)
 2. Do not add remote code execution or dynamic external script loading.
 3. Keep manifest permissions minimal.
 4. Do not regress copy behavior:
@@ -59,5 +61,5 @@ Project-level instructions for AI coding agents working in this repository.
 ## Out Of Scope Unless Explicitly Requested
 
 - Major architecture rewrites.
-- New permissions/API surface in manifest.
+- New permissions/API surface in manifest beyond current broad match + runtime JSON detection approach.
 - Analytics, tracking, telemetry.

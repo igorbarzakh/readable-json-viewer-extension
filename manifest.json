@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Readable JSON Viewer",
   "version": "1.0.0",
-  "description": "Formats .json pages into a readable, collapsible tree view.",
+  "description": "Formats JSON documents into a readable, collapsible tree view.",
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",

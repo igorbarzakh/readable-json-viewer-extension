@@ -1,6 +1,6 @@
 # Readable JSON Viewer (Chrome Extension)
 
-Chrome extension that formats `.json` pages into a readable code-editor-like view with:
+Chrome extension that formats JSON documents into a readable code-editor-like view with:
 - syntax highlighting
 - collapse/expand for objects and arrays
 - line numbers with folding-aware jumps
@@ -54,6 +54,14 @@ npm run package
 2. Enable **Developer mode**
 3. Click **Load unpacked**
 4. Choose project folder for development, or `dist/` for release-candidate verification
+
+## Activation Rules
+
+Viewer activates when opened document is JSON:
+- URL ends with `.json` (including query/hash)
+- or document `Content-Type` is JSON (`application/json`, `text/json`, `+json`)
+
+Non-JSON pages remain unchanged.
 
 ## Pre-publish Checklist
 
