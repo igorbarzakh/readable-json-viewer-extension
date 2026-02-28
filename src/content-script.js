@@ -726,6 +726,8 @@
     const copyStatus = { timer: null };
     let viewerEnabled = true;
     let lockedGutterWidthPx = null;
+    let gutterLockAttempts = 0;
+    let gutterLockRafId = 0;
 
     const showCopyButtonStatus = (copyJsonBtn, label, durationMs, disabled) => {
       if (!copyJsonBtn) {
@@ -748,6 +750,58 @@
       }, durationMs);
     };
 
+    const cancelPendingGutterLock = () => {
+      if (gutterLockRafId !== 0) {
+        window.cancelAnimationFrame(gutterLockRafId);
+        gutterLockRafId = 0;
+      }
+    };
+
+    const applyLockedGutterWidth = (gutter) => {
+      if (lockedGutterWidthPx === null) {
+        return;
+      }
+      const widthValue = `${lockedGutterWidthPx}px`;
+      gutter.style.width = widthValue;
+      gutter.style.minWidth = widthValue;
+    };
+
+    const tryLockGutterWidth = (gutter, editor) => {
+      if (lockedGutterWidthPx !== null) {
+        applyLockedGutterWidth(gutter);
+        return true;
+      }
+
+      gutter.style.width = "";
+      gutter.style.minWidth = "";
+      const measuredWidth = Math.ceil(gutter.getBoundingClientRect().width);
+      const maxReasonableWidth = Math.max(56, Math.min(160, Math.floor(window.innerWidth * 0.2)));
+      if (measuredWidth > 0 && measuredWidth <= maxReasonableWidth) {
+        lockedGutterWidthPx = measuredWidth;
+        applyLockedGutterWidth(gutter);
+        return true;
+      }
+      return false;
+    };
+
+    const scheduleGutterWidthLock = () => {
+      if (lockedGutterWidthPx !== null || gutterLockRafId !== 0 || gutterLockAttempts >= 8) {
+        return;
+      }
+      gutterLockRafId = window.requestAnimationFrame(() => {
+        gutterLockRafId = 0;
+        const gutter = document.getElementById("json-gutter");
+        const editor = document.getElementById("json-editor");
+        if (!viewerEnabled || !gutter || !editor) {
+          return;
+        }
+        gutterLockAttempts += 1;
+        if (!tryLockGutterWidth(gutter, editor)) {
+          scheduleGutterWidthLock();
+        }
+      });
+    };
+
     const rerender = () => {
       const container = document.getElementById("json-container");
       const gutter = document.getElementById("json-gutter");
@@ -761,6 +815,7 @@
       }
 
       if (!viewerEnabled) {
+        cancelPendingGutterLock();
         container.textContent = source;
         container.classList.add("json-raw-mode");
         editor.classList.add("json-editor-raw");
@@ -787,18 +842,8 @@
         Number(node.getAttribute("data-line") || 0)
       ).filter((value) => Number.isFinite(value) && value > 0);
       gutter.innerHTML = buildLineNumbersHtml(lineNumbers);
-      if (lockedGutterWidthPx === null) {
-        gutter.style.width = "";
-        gutter.style.minWidth = "";
-        const measuredWidth = Math.ceil(gutter.getBoundingClientRect().width);
-        if (measuredWidth > 0) {
-          lockedGutterWidthPx = measuredWidth;
-        }
-      }
-      if (lockedGutterWidthPx !== null) {
-        const widthValue = `${lockedGutterWidthPx}px`;
-        gutter.style.width = widthValue;
-        gutter.style.minWidth = widthValue;
+      if (!tryLockGutterWidth(gutter, editor)) {
+        scheduleGutterWidthLock();
       }
       if (toggleViewerBtn) {
         toggleViewerBtn.textContent = "Disable viewer";
@@ -941,5 +986,22 @@
     });
   }
 
-  initJsonViewer();
+  function bootJsonViewer() {
+    if (!isJsonDocument(window.location.href, document.contentType)) {
+      return;
+    }
+
+    const run = () => {
+      initJsonViewer();
+    };
+
+    if (document.body) {
+      run();
+      return;
+    }
+
+    document.addEventListener("DOMContentLoaded", run, { once: true });
+  }
+
+  bootJsonViewer();
 })();
