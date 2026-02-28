@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Readable JSON Viewer",
+  "version": "1.0.0",
+  "description": "Formats .json pages into a readable, collapsible tree view.",
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*/*.json",
+        "*://*/*.json?*",
+        "*://*/*.json#*",
+        "file:///*.json",
+        "file:///*.json?*",
+        "file:///*.json#*"
+      ],
+      "js": [
+        "src/content-script.js"
+      ],
+      "css": [
+        "src/styles.css"
+      ],
+      "run_at": "document_idle"
+    }
+  ]
+}
