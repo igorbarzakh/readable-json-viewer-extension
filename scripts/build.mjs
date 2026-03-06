@@ -30,6 +30,7 @@ async function run() {
   await rm(DIST_DIR, { recursive: true, force: true });
   await mkdir(DIST_SRC_DIR, { recursive: true });
   await Promise.all([buildContentScript(), buildStyles()]);
+  await copyFile('src/background.js', `${DIST_SRC_DIR}/background.js`);
   await copyFile('manifest.json', `${DIST_DIR}/manifest.json`);
   await mkdir(`${DIST_DIR}/icons`, { recursive: true });
   await Promise.all([
@@ -37,6 +38,10 @@ async function run() {
     copyFile('icons/icon-32.png', `${DIST_DIR}/icons/icon-32.png`),
     copyFile('icons/icon-48.png', `${DIST_DIR}/icons/icon-48.png`),
     copyFile('icons/icon-128.png', `${DIST_DIR}/icons/icon-128.png`),
+    copyFile('icons/icon-16-disabled.png', `${DIST_DIR}/icons/icon-16-disabled.png`),
+    copyFile('icons/icon-32-disabled.png', `${DIST_DIR}/icons/icon-32-disabled.png`),
+    copyFile('icons/icon-48-disabled.png', `${DIST_DIR}/icons/icon-48-disabled.png`),
+    copyFile('icons/icon-128-disabled.png', `${DIST_DIR}/icons/icon-128-disabled.png`),
   ]);
 }
 

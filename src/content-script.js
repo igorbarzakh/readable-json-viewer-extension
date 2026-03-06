@@ -669,6 +669,8 @@ function bootJsonViewer() {
     return;
   }
 
+  chrome.runtime.sendMessage({ type: 'json-activated' }).catch(() => {});
+
   const run = () => {
     initJsonViewer();
   };
