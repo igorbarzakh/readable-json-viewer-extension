@@ -6,10 +6,27 @@ import {
   shouldHandleSelectAll,
   getFormattedJsonText,
   extractJsonErrorInfo,
-  resolveThemeMode,
   nextThemeMode,
   computeLines,
 } from './viewer-core.js';
+
+const _THEME_KEY = 'json-viewer-theme-mode';
+
+// Apply theme synchronously at document_start to prevent flash.
+// localStorage is per-origin but available instantly; system preference is the fallback.
+try {
+  const cached = localStorage.getItem(_THEME_KEY);
+  const theme = (cached === 'dark' || cached === 'light')
+    ? cached
+    : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+} catch (_) {
+  document.documentElement.setAttribute('data-theme',
+    window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+}
+
+// Kick off extension storage read immediately; will be used to sync cross-origin.
+const _themePromise = chrome.storage.local.get(_THEME_KEY).catch(() => ({}));
 
 const VS_LINE_HEIGHT = 19; // must match --code-row-height
 const VS_BUFFER = 60;      // lines rendered above/below viewport
@@ -135,28 +152,30 @@ function collectPaths(value, path, into) {
   }
 }
 
-function initJsonViewer() {
+async function initJsonViewer() {
   if (!document.body || !isJsonDocument(window.location.href, document.contentType)) {
     return;
   }
 
-  const THEME_KEY = "json-viewer-theme-mode";
-  const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-  const readStoredThemeMode = () => {
-    try {
-      return window.localStorage.getItem(THEME_KEY);
-    } catch (_) {
-      return null;
-    }
-  };
+  const THEME_KEY = _THEME_KEY;
   const persistThemeMode = (mode) => {
-    try {
-      window.localStorage.setItem(THEME_KEY, mode);
-    } catch (_) {
-      // ignore storage failures (restricted origins/privacy modes)
-    }
+    try { localStorage.setItem(THEME_KEY, mode); } catch (_) {}
+    chrome.storage.local.set({ [THEME_KEY]: mode }).catch(() => {});
   };
-  let themeMode = resolveThemeMode(readStoredThemeMode(), mediaQuery.matches);
+  const storedResult = await _themePromise;
+  const fromExtStorage = storedResult[THEME_KEY] ?? null;
+  let themeMode;
+  if (fromExtStorage === 'dark' || fromExtStorage === 'light') {
+    themeMode = fromExtStorage;
+    // Keep localStorage in sync (may differ if theme was changed from another origin).
+    try { localStorage.setItem(THEME_KEY, themeMode); } catch (_) {}
+  } else {
+    try {
+      const cached = localStorage.getItem(THEME_KEY);
+      themeMode = cached === 'dark' || cached === 'light' ? cached : null;
+    } catch (_) { themeMode = null; }
+    themeMode = themeMode ?? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  }
   const applyTheme = () => {
     document.documentElement.setAttribute("data-theme", themeMode);
     const toggleThemeBtn = document.getElementById("toggle-theme");
@@ -164,7 +183,6 @@ function initJsonViewer() {
       toggleThemeBtn.innerHTML = themeButtonContent(themeMode);
     }
   };
-
   applyTheme();
 
   const source = document.body.innerText || "";
@@ -672,7 +690,7 @@ function bootJsonViewer() {
   chrome.runtime.sendMessage({ type: 'json-activated' }).catch(() => {});
 
   const run = () => {
-    initJsonViewer();
+    initJsonViewer().catch(() => {});
   };
 
   if (document.body) {
