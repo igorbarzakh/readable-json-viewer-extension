@@ -8,7 +8,8 @@ async function buildContentScript() {
   await build({
     entryPoints: ['src/content-script.js'],
     outfile: `${DIST_SRC_DIR}/content-script.js`,
-    bundle: false,
+    bundle: true,
+    format: 'iife',
     minify: true,
     target: ['chrome114'],
     legalComments: 'none',
@@ -36,8 +37,6 @@ async function run() {
     copyFile('icons/icon-32.png', `${DIST_DIR}/icons/icon-32.png`),
     copyFile('icons/icon-48.png', `${DIST_DIR}/icons/icon-48.png`),
     copyFile('icons/icon-128.png', `${DIST_DIR}/icons/icon-128.png`),
-    copyFile('icons/dark-mode.svg', `${DIST_DIR}/icons/dark-mode.svg`),
-    copyFile('icons/light-mode.svg', `${DIST_DIR}/icons/light-mode.svg`),
   ]);
 }
 

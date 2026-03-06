@@ -1,4 +1,4 @@
-function escapeHtml(value) {
+export function escapeHtml(value) {
   return String(value)
     .replaceAll('&', '&amp;')
     .replaceAll('<', '&lt;')
@@ -51,13 +51,6 @@ export function shouldHandleSelectAll(
   return activeInside || selectionInside;
 }
 
-export function getClipboardJsonText(viewerEnabled, sourceText) {
-  if (!viewerEnabled) {
-    return null;
-  }
-  return sourceText;
-}
-
 export function getFormattedJsonText(value) {
   return JSON.stringify(value, null, 2);
 }
@@ -70,8 +63,6 @@ export function extractJsonErrorInfo(rawText, errorMessage) {
       line: null,
       column: null,
       lineText: null,
-      prevLineText: null,
-      nextLineText: null,
     };
   }
 
@@ -96,24 +87,11 @@ export function extractJsonErrorInfo(rawText, errorMessage) {
     lineEnd = rawText.length;
   }
 
-  const prevLineEnd = Math.max(0, lineStart - 1);
-  const prevLineStart = prevLineEnd > 0 ? rawText.lastIndexOf('\n', prevLineEnd - 1) + 1 : 0;
-  const prevLineText = lineStart > 0 ? rawText.slice(prevLineStart, prevLineEnd) : null;
-
-  const nextLineStart = lineEnd < rawText.length ? lineEnd + 1 : -1;
-  const nextLineEnd = nextLineStart >= 0 ? rawText.indexOf('\n', nextLineStart) : -1;
-  const nextLineText =
-    nextLineStart >= 0
-      ? rawText.slice(nextLineStart, nextLineEnd === -1 ? rawText.length : nextLineEnd)
-      : null;
-
   return {
     message: String(errorMessage || 'Invalid JSON'),
     line,
     column,
     lineText: rawText.slice(lineStart, lineEnd),
-    prevLineText,
-    nextLineText,
   };
 }
 
@@ -126,26 +104,6 @@ export function resolveThemeMode(storedValue, prefersDark) {
 
 export function nextThemeMode(themeMode) {
   return themeMode === 'dark' ? 'light' : 'dark';
-}
-
-export function buildLineNumbersHtml(linesOrCount) {
-  let numbers = [];
-  if (Array.isArray(linesOrCount)) {
-    numbers = linesOrCount
-      .map((value) => Number(value))
-      .filter((value) => Number.isFinite(value) && value > 0);
-  } else {
-    const safeCount = Math.max(0, Number(linesOrCount) || 0);
-    for (let i = 1; i <= safeCount; i += 1) {
-      numbers.push(i);
-    }
-  }
-
-  if (numbers.length > 0) {
-    numbers.push(numbers[numbers.length - 1] + 1);
-  }
-
-  return numbers.map((line) => `<div class="json-gutter-line">${line}</div>`).join('');
 }
 
 function renderPrimitive(value) {
@@ -324,13 +282,6 @@ function canInlineCollection(value, path) {
   return false;
 }
 
-function renderInlineCollection(value, depth) {
-  if (Array.isArray(value)) {
-    return renderInlineArray(value, depth);
-  }
-  return '';
-}
-
 function renderGuides(activeGuides, guideStarts) {
   if (!Array.isArray(activeGuides) || activeGuides.length === 0) {
     return '';
@@ -430,7 +381,7 @@ function renderValueLines(value, context) {
   if (canInlineCollection(value, path)) {
     const lineNumber = lineState.current;
     lineState.current += 1;
-    const inlineLine = `${keyPart}${renderInlineCollection(value, depth)}${comma}`;
+    const inlineLine = `${keyPart}${renderInlineArray(value, depth)}${comma}`;
     return [renderLine(depth, inlineLine, lineNumber, activeGuides, guideStarts)];
   }
 
@@ -497,4 +448,22 @@ export function renderJsonToHtml(value, collapsedPaths = new Set()) {
     guideStarts: new Set(),
   });
   return `<div class="json-root">${lines.join('')}</div>`;
+}
+
+export function computeLines(value, collapsedPaths = new Set()) {
+  const lineState = { current: 1 };
+  const htmlLines = renderValueLines(value, {
+    path: '$',
+    depth: 0,
+    collapsedPaths,
+    keyLabel: null,
+    appendComma: false,
+    lineState,
+    activeGuides: [],
+    guideStarts: new Set(),
+  });
+  return htmlLines.map((html) => ({
+    html,
+    lineNumber: Number(/data-line="(\d+)"/.exec(html)?.[1] ?? 0),
+  }));
 }
