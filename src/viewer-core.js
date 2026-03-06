@@ -11,11 +11,14 @@ export function isJsonUrl(url) {
 }
 
 export function isJsonDocument(url, contentType) {
-  if (isJsonUrl(url)) {
+  const type = String(contentType || '').toLowerCase();
+  if (type.includes('application/json') || type.includes('+json')) {
     return true;
   }
-  const type = String(contentType || '').toLowerCase();
-  return type.includes('application/json') || type.includes('text/json') || type.includes('+json');
+  if (type.includes('text/html')) {
+    return false;
+  }
+  return isJsonUrl(url);
 }
 
 export function parseJsonText(text) {
