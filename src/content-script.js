@@ -561,9 +561,13 @@ function initJsonViewer() {
       const bar = document.getElementById("json-search-bar");
       const input = document.getElementById("json-search-input");
       if (bar && input) {
-        bar.hidden = false;
-        input.focus();
-        input.select();
+        if (!bar.hidden) {
+          hideSearch();
+        } else {
+          bar.hidden = false;
+          input.focus();
+          input.select();
+        }
       }
       return;
     }
