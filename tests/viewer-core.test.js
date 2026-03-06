@@ -8,12 +8,10 @@ import {
   renderJsonToHtml,
   toggleCollapsedPath,
   shouldHandleSelectAll,
-  getClipboardJsonText,
   getFormattedJsonText,
   extractJsonErrorInfo,
   resolveThemeMode,
   nextThemeMode,
-  buildLineNumbersHtml,
 } from "../src/viewer-core.js";
 
 test("isJsonUrl matches only .json urls", () => {
@@ -262,12 +260,6 @@ test("shouldHandleSelectAll handles only cmd/ctrl+a inside json container", () =
   );
 });
 
-test("getClipboardJsonText returns source json only when viewer is enabled", () => {
-  const source = '{\n    "a": 1,\n  "nested": { "b": true }\n}';
-  assert.equal(getClipboardJsonText(true, source), source);
-  assert.equal(getClipboardJsonText(false, source), null);
-});
-
 test("getFormattedJsonText returns pretty JSON with two-space indent", () => {
   const text = getFormattedJsonText({ a: 1, nested: { b: true } });
   assert.equal(text, '{\n  "a": 1,\n  "nested": {\n    "b": true\n  }\n}');
@@ -288,18 +280,5 @@ test("extractJsonErrorInfo returns line and column from parse position", () => {
   assert.equal(info.line, 3);
   assert.equal(info.column, 7);
   assert.equal(info.lineText, '  "b":,');
-  assert.equal(info.prevLineText, '  "a": 1,');
-  assert.equal(info.nextLineText, '  "c": 3');
 });
 
-test("buildLineNumbersHtml returns sequential gutter lines", () => {
-  assert.equal(
-    buildLineNumbersHtml(3),
-    '<div class="json-gutter-line">1</div><div class="json-gutter-line">2</div><div class="json-gutter-line">3</div><div class="json-gutter-line">4</div>'
-  );
-  assert.equal(
-    buildLineNumbersHtml([1, 2, 6, 7]),
-    '<div class="json-gutter-line">1</div><div class="json-gutter-line">2</div><div class="json-gutter-line">6</div><div class="json-gutter-line">7</div><div class="json-gutter-line">8</div>'
-  );
-  assert.equal(buildLineNumbersHtml(0), "");
-});

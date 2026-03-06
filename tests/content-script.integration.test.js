@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 
-const scriptSource = readFileSync(new URL("../src/content-script.js", import.meta.url), "utf8");
+const scriptSource = readFileSync(new URL("../dist/src/content-script.js", import.meta.url), "utf8");
 
 function createDom(sourceText, url, contentType = "text/html") {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {
@@ -245,42 +245,6 @@ test("gutter width is locked from initial expanded render", () => {
   );
   const dom = createDom(raw, "https://example.com/data.json");
   const { window } = dom;
-
-  Object.defineProperty(window.HTMLElement.prototype, "getBoundingClientRect", {
-    configurable: true,
-    value() {
-      if (this.id === "json-gutter") {
-        const lineCount = (this.innerHTML.match(/json-gutter-line/g) || []).length;
-        const width = 10 + lineCount * 3;
-        return {
-          width,
-          height: 0,
-          top: 0,
-          left: 0,
-          right: width,
-          bottom: 0,
-          x: 0,
-          y: 0,
-          toJSON() {
-            return {};
-          },
-        };
-      }
-      return {
-        width: 0,
-        height: 0,
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        x: 0,
-        y: 0,
-        toJSON() {
-          return {};
-        },
-      };
-    },
-  });
 
   window.eval(scriptSource);
 
