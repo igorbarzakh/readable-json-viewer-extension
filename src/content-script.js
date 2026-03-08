@@ -42,9 +42,10 @@ if (isJsonDocument(window.location.href, document.contentType)) {
 
 // Kick off extension storage read immediately; will be used to sync cross-origin.
 // Only needed on JSON pages, but the cost of an early resolve is negligible.
+// Errors (e.g. extension context invalidated) are caught inside initJsonViewer.
 const _themePromise = isJsonDocument(window.location.href, document.contentType)
-  ? chrome.storage.local.get(_THEME_KEY).catch(() => ({}))
-  : Promise.resolve({});
+  ? chrome.storage.local.get(_THEME_KEY)
+  : null;
 
 // Hide the page body immediately (document_start) to prevent flash of the
 // browser's raw JSON view before our viewer takes over. Removed synchronously
