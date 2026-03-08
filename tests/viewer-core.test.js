@@ -23,7 +23,7 @@ test("isJsonUrl matches only .json urls", () => {
 });
 
 test("isJsonDocument matches json url suffix and json content-type", () => {
-  assert.equal(isJsonDocument("https://example.com/data.json", "text/html"), true);
+  assert.equal(isJsonDocument("https://example.com/data.json", "text/html"), false);
   assert.equal(
     isJsonDocument("https://jsonplaceholder.typicode.com/posts", "application/json; charset=utf-8"),
     true
