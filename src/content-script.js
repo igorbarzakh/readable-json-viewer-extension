@@ -223,6 +223,8 @@ async function initJsonViewer() {
     const bar = document.getElementById('json-search-bar');
     if (!bar || bar.hidden) return;
     bar.hidden = true;
+    const searchInput = document.getElementById('json-search-input');
+    if (searchInput) searchInput.value = '';
     search.clear();
     vscroll.resetWindow();
     const container = document.getElementById('json-container');
