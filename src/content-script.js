@@ -28,6 +28,18 @@ try {
 // Kick off extension storage read immediately; will be used to sync cross-origin.
 const _themePromise = chrome.storage.local.get(_THEME_KEY).catch(() => ({}));
 
+// Hide the page body immediately (document_start) to prevent flash of the
+// browser's raw JSON view before our viewer takes over. Removed synchronously
+// inside initJsonViewer() right after the single async pause, so the browser
+// batches the unhide with the body replacement — no visible intermediate state.
+const _flashGuard = (() => {
+  if (!isJsonDocument(window.location.href, document.contentType)) return null;
+  const s = document.createElement('style');
+  s.textContent = 'body{visibility:hidden!important}';
+  document.documentElement.appendChild(s);
+  return s;
+})();
+
 const VS_LINE_HEIGHT = 19; // must match --code-row-height
 const VS_BUFFER = 60;      // lines rendered above/below viewport
 
@@ -163,6 +175,10 @@ async function initJsonViewer() {
     chrome.storage.local.set({ [THEME_KEY]: mode }).catch(() => {});
   };
   const storedResult = await _themePromise;
+  // Unhide synchronously — everything below this line runs in the same
+  // microtask continuation, so no repaint occurs between removing the guard
+  // and replacing document.body.innerHTML with the viewer shell.
+  _flashGuard?.remove();
   const fromExtStorage = storedResult[THEME_KEY] ?? null;
   let themeMode;
   if (fromExtStorage === 'dark' || fromExtStorage === 'light') {
