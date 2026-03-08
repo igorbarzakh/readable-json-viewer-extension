@@ -687,9 +687,18 @@ function bootJsonViewer() {
     return;
   }
 
-  chrome.runtime.sendMessage({ type: 'json-activated' }).catch(() => {});
+  const sendActivated = () => {
+    chrome.runtime.sendMessage({ type: 'json-activated' }).catch(() => {});
+  };
 
   const run = () => {
+    // If Chrome is prerendering the page, defer the icon message until the page
+    // becomes active — otherwise Chrome resets the per-tab icon on activation.
+    if (document.prerendering) {
+      document.addEventListener('prerenderingchange', sendActivated, { once: true });
+    } else {
+      sendActivated();
+    }
     initJsonViewer().catch(() => {});
   };
 
