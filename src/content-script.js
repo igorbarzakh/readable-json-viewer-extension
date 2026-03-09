@@ -53,9 +53,13 @@ const _themePromise = isJsonDocument(window.location.href, document.contentType)
 // batches the unhide with the body replacement — no visible intermediate state.
 const _flashGuard = (() => {
   if (!isJsonDocument(window.location.href, document.contentType)) return null;
+  const meta = document.createElement('meta');
+  meta.name = 'viewport';
+  meta.content = 'width=device-width, initial-scale=1, maximum-scale=1';
+  (document.head || document.documentElement).appendChild(meta);
   const s = document.createElement('style');
   s.textContent = 'body{visibility:hidden!important}';
-  document.documentElement.appendChild(s);
+  (document.head || document.documentElement).appendChild(s);
   return s;
 })();
 
