@@ -335,6 +335,34 @@ async function initJsonViewer() {
       return;
     }
 
+    const isCmd = event.metaKey || event.ctrlKey;
+    const inSearchInput = document.activeElement?.id === 'json-search-input';
+
+    if (isCmd && event.key === 'c' && !inSearchInput) {
+      const hasSelection = window.getSelection()?.toString().length > 0;
+      if (!hasSelection) {
+        event.preventDefault();
+        void (async () => {
+          const copyJsonBtn = document.getElementById('copy-json');
+          const copied = await copyTextToClipboard(formattedJson);
+          if (copied) showCopyButtonStatus(copyJsonBtn, 'Copied', 1800, true);
+        })();
+      }
+      return;
+    }
+
+    if (isCmd && event.key === 'x' && !inSearchInput) {
+      event.preventDefault();
+      if (collapsedPaths.size > 0) {
+        collapsedPaths.clear();
+      } else {
+        collectPaths(parsed.value, '$', collapsedPaths);
+      }
+      if (jsonEditor) jsonEditor.scrollTop = 0;
+      rerender();
+      return;
+    }
+
     if (!jsonContainer) return;
     const active = document.activeElement;
     const selection = window.getSelection();
@@ -372,10 +400,15 @@ async function initJsonViewer() {
   });
 
   document.getElementById('json-search-input')?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter' || e.key === 'ArrowDown') {
       e.preventDefault();
       if (search.getState().matches.length === 0) return;
       e.shiftKey ? search.prev() : search.next();
+      scrollToCurrentMatch();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      if (search.getState().matches.length === 0) return;
+      search.prev();
       scrollToCurrentMatch();
     } else if (e.key === 'Escape') {
       hideSearch();
