@@ -16,14 +16,17 @@ import {
   themeButtonContent,
   copyButtonContent,
   toggleAllButtonContent,
+  isMac,
 } from './ui-builders.js';
+
+const cmd = isMac ? '⌘' : 'Ctrl';
 import { copyTextToClipboard } from './clipboard.js';
 import { createVirtualScroll } from './virtual-scroll.js';
 import { createSearch } from './search.js';
 
 const _THEME_KEY = 'json-viewer-theme-mode';
 const VS_LINE_HEIGHT = 19; // must match --code-row-height
-const VS_BUFFER = 60;      // lines rendered above/below viewport
+const VS_BUFFER = 60; // lines rendered above/below viewport
 
 // All document_start side-effects are gated on isJsonDocument so we don't
 // touch non-JSON pages at all.
@@ -32,11 +35,15 @@ if (isJsonDocument(window.location.href, document.contentType)) {
   // localStorage is per-origin but available instantly; system preference is the fallback.
   try {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    document.documentElement.setAttribute('data-theme',
-      resolveThemeMode(localStorage.getItem(_THEME_KEY), prefersDark));
+    document.documentElement.setAttribute(
+      'data-theme',
+      resolveThemeMode(localStorage.getItem(_THEME_KEY), prefersDark),
+    );
   } catch (_) {
-    document.documentElement.setAttribute('data-theme',
-      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    document.documentElement.setAttribute(
+      'data-theme',
+      window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+    );
   }
 }
 
@@ -78,7 +85,9 @@ async function initJsonViewer() {
   }
 
   const persistThemeMode = (mode) => {
-    try { localStorage.setItem(_THEME_KEY, mode); } catch (_) {}
+    try {
+      localStorage.setItem(_THEME_KEY, mode);
+    } catch (_) {}
     chrome.storage.local.set({ [_THEME_KEY]: mode }).catch(() => {});
   };
 
@@ -91,7 +100,9 @@ async function initJsonViewer() {
   const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   const fromExtStorage = storedResult[_THEME_KEY];
   let fromLocal = null;
-  try { fromLocal = localStorage.getItem(_THEME_KEY); } catch (_) {}
+  try {
+    fromLocal = localStorage.getItem(_THEME_KEY);
+  } catch (_) {}
 
   let themeMode;
   if (fromExtStorage === 'dark' || fromExtStorage === 'light') {
@@ -103,7 +114,9 @@ async function initJsonViewer() {
     chrome.storage.local.set({ [_THEME_KEY]: themeMode }).catch(() => {});
   }
   // Always keep localStorage in sync with the final resolved value.
-  try { localStorage.setItem(_THEME_KEY, themeMode); } catch (_) {}
+  try {
+    localStorage.setItem(_THEME_KEY, themeMode);
+  } catch (_) {}
 
   const applyTheme = () => {
     document.documentElement.setAttribute('data-theme', themeMode);
@@ -141,7 +154,10 @@ async function initJsonViewer() {
 
   // Compute the full expanded line list once; reused on expand-all and for search.
   const allVsLines = computeLines(parsed.value, new Set());
-  const maxDigitsEver = Math.max(3, String(allVsLines[allVsLines.length - 1]?.lineNumber ?? 1).length);
+  const maxDigitsEver = Math.max(
+    3,
+    String(allVsLines[allVsLines.length - 1]?.lineNumber ?? 1).length,
+  );
 
   const collapsedPaths = new Set();
   const formattedJson = getFormattedJsonText(parsed.value);
@@ -154,7 +170,10 @@ async function initJsonViewer() {
 
   const showCopyButtonStatus = (btn, label, durationMs, disabled) => {
     if (!btn) return;
-    if (copyStatus.timer) { clearTimeout(copyStatus.timer); copyStatus.timer = null; }
+    if (copyStatus.timer) {
+      clearTimeout(copyStatus.timer);
+      copyStatus.timer = null;
+    }
     btn.innerHTML = copyButtonContent(label === 'Copied' ? 'done' : 'copy');
     btn.disabled = disabled;
     copyStatus.timer = setTimeout(() => {
@@ -174,7 +193,9 @@ async function initJsonViewer() {
     container.classList.remove('json-raw-mode');
     editor.classList.remove('json-editor-raw');
 
-    vscroll.setLines(collapsedPaths.size === 0 ? allVsLines : computeLines(parsed.value, collapsedPaths));
+    vscroll.setLines(
+      collapsedPaths.size === 0 ? allVsLines : computeLines(parsed.value, collapsedPaths),
+    );
     vscroll.render(editor, container, gutter, search.getDecorator());
 
     document.getElementById('toggle-theme')?.removeAttribute('disabled');
@@ -182,7 +203,9 @@ async function initJsonViewer() {
     const toggleAllBtn = document.getElementById('toggle-all');
     if (toggleAllBtn) {
       toggleAllBtn.disabled = false;
-      toggleAllBtn.innerHTML = toggleAllButtonContent(collapsedPaths.size > 0 ? 'expand' : 'collapse');
+      const toggleState = collapsedPaths.size > 0 ? 'expand' : 'collapse';
+      toggleAllBtn.innerHTML = toggleAllButtonContent(toggleState);
+      toggleAllBtn.title = `${toggleState === 'expand' ? 'Expand' : 'Collapse'} all (${cmd} + X)`;
     }
   };
 
@@ -202,7 +225,10 @@ async function initJsonViewer() {
       vscroll.setLines(allVsLines);
       posIdx = vscroll.findLineIndex(targetLn);
       const btn = document.getElementById('toggle-all');
-      if (btn) btn.innerHTML = toggleAllButtonContent('collapse');
+      if (btn) {
+        btn.innerHTML = toggleAllButtonContent('collapse');
+        btn.title = `Collapse all (${cmd}+X)`;
+      }
     }
     if (posIdx < 0) return;
 
@@ -210,7 +236,7 @@ async function initJsonViewer() {
     if (editor) {
       editor.scrollTop = Math.max(
         0,
-        posIdx * VS_LINE_HEIGHT - Math.floor((editor.clientHeight || 600) / 2)
+        posIdx * VS_LINE_HEIGHT - Math.floor((editor.clientHeight || 600) / 2),
       );
     }
 
@@ -264,8 +290,8 @@ async function initJsonViewer() {
         () => document.getElementById('json-editor'),
         () => document.getElementById('json-container'),
         () => document.getElementById('json-gutter'),
-        () => search.getDecorator()
-      )
+        () => search.getDecorator(),
+      ),
     );
   }
 
@@ -363,6 +389,14 @@ async function initJsonViewer() {
       return;
     }
 
+    if (isCmd && event.altKey && event.code === 'KeyT') {
+      event.preventDefault();
+      themeMode = nextThemeMode(themeMode);
+      applyTheme();
+      persistThemeMode(themeMode);
+      return;
+    }
+
     if (!jsonContainer) return;
     const active = document.activeElement;
     const selection = window.getSelection();
@@ -371,7 +405,7 @@ async function initJsonViewer() {
       active,
       jsonContainer,
       (node) => node === jsonContainer || jsonContainer.contains(node),
-      selection ? selection.anchorNode : null
+      selection ? selection.anchorNode : null,
     );
     if (!handle) return;
 
@@ -394,7 +428,8 @@ async function initJsonViewer() {
       const container = document.getElementById('json-container');
       const gutter = document.getElementById('json-gutter');
       const editor = document.getElementById('json-editor');
-      if (container && gutter && editor) vscroll.render(editor, container, gutter, search.getDecorator());
+      if (container && gutter && editor)
+        vscroll.render(editor, container, gutter, search.getDecorator());
       updateSearchStatus();
     }
   });

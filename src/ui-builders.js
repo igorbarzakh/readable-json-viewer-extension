@@ -1,5 +1,9 @@
 import { escapeHtml, nextThemeMode } from './viewer-core.js';
 
+export const isMac = navigator.platform.startsWith('Mac');
+const cmd = isMac ? '⌘' : 'Ctrl';
+const alt = isMac ? '⌥' : 'Alt';
+
 export function buildErrorSnippetHtml(rawText, line, column) {
   if (!line) return '';
 
@@ -43,7 +47,7 @@ export function buildErrorSnippetHtml(rawText, line, column) {
 
 export function buildEmptyJsonHtml() {
   return buildShellHtml(
-    '<div class="json-error-title">Empty JSON</div><div class="json-error-message">Response body is empty.</div>'
+    '<div class="json-error-title">Empty JSON</div><div class="json-error-message">Response body is empty.</div>',
   );
 }
 
@@ -57,7 +61,7 @@ export function buildInvalidJsonHtml(errorInfo, rawSource) {
       ? `<pre class="json-error-context">${buildErrorSnippetHtml(rawSource, errorInfo.line, errorInfo.column)}</pre>`
       : '';
   return buildShellHtml(
-    `<div class="json-error-title">Invalid JSON</div><div class="json-error-message">${escapeHtml(errorInfo.message)}</div>${locationHtml}${contextHtml}`
+    `<div class="json-error-title">Invalid JSON</div><div class="json-error-message">${escapeHtml(errorInfo.message)}</div>${locationHtml}${contextHtml}`,
   );
 }
 
@@ -94,9 +98,9 @@ export function toggleAllButtonContent(state) {
 }
 
 export function buildShellHtml(content) {
-  return `<div class="json-viewer"><div class="json-toolbar"><button type="button" id="toggle-all">${toggleAllButtonContent(
-    'collapse'
-  )}</button><button type="button" id="copy-json">${copyButtonContent(
-    'copy'
-  )}</button><button type="button" id="toggle-theme"></button></div><div id="json-search-bar" class="json-search-bar" hidden><input id="json-search-input" type="text" placeholder="Search..." autocomplete="off" spellcheck="false"><span id="json-search-status"></span><button type="button" id="json-search-prev" title="Previous (Shift+Enter)">↑</button><button type="button" id="json-search-next" title="Next (Enter)">↓</button><button type="button" id="json-search-close" title="Close (Escape)">✕</button></div><div id="json-editor"><div id="json-gutter" aria-hidden="true"></div><pre id="json-container" tabindex="0">${content}</pre></div></div>`;
+  return `<div class="json-viewer"><div class="json-toolbar"><button type="button" id="toggle-all" title="Collapse all (${cmd} + X)">${toggleAllButtonContent(
+    'collapse',
+  )}</button><button type="button" id="copy-json" title="Copy JSON (${cmd} + C)">${copyButtonContent(
+    'copy',
+  )}</button><button type="button" id="toggle-theme" title="Switch theme (${cmd} + ${alt} + T)"></button></div><div id="json-search-bar" class="json-search-bar" hidden><input id="json-search-input" type="text" placeholder="Search..." autocomplete="off" spellcheck="false"><span id="json-search-status"></span><button type="button" id="json-search-prev" title="Previous (Shift+Enter)"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="16" width="16" style="transform:rotate(180deg)"><path fill="currentColor" d="M12 2c0.5523 0.00004 1 0.44774 1 1v15.0859l4.043 -4.0429c0.3905 -0.3905 1.0235 -0.3905 1.414 0s0.3905 1.0235 0 1.414l-5.75 5.75c-0.0465 0.0466 -0.0984 0.0874 -0.1533 0.1241 -0.0391 0.0261 -0.0794 0.0493 -0.1211 0.0693 -0.0455 0.0219 -0.0926 0.0408 -0.1416 0.0557 -0.0167 0.005 -0.0338 0.0085 -0.0508 0.0127 -0.0156 0.0038 -0.031 0.0086 -0.0468 0.0117 -0.0071 0.0014 -0.0144 0.0017 -0.0215 0.0029 -0.056 0.0097 -0.1132 0.0166 -0.1719 0.0166 -0.0566 0 -0.1119 -0.0066 -0.166 -0.0156 -0.0104 -0.0018 -0.0209 -0.0028 -0.0313 -0.0049 -0.0115 -0.0023 -0.0228 -0.0051 -0.0341 -0.0078 -0.0206 -0.0049 -0.0413 -0.0094 -0.0616 -0.0156 -0.0486 -0.0149 -0.0954 -0.0339 -0.1406 -0.0557 -0.0398 -0.0192 -0.0787 -0.0407 -0.1162 -0.0654 -0.0567 -0.0374 -0.1094 -0.0802 -0.1572 -0.128l-5.75003 -5.75c-0.39053 -0.3905 -0.39053 -1.0235 0 -1.414s1.02355 -0.3905 1.41406 0L11 18.0859V3c0 -0.55228 0.4477 -1 1 -1" stroke-width="1"></path></svg></button><button type="button" id="json-search-next" title="Next (Enter)"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" height="16" width="16"><path fill="currentColor" d="M12 2c0.5523 0.00004 1 0.44774 1 1v15.0859l4.043 -4.0429c0.3905 -0.3905 1.0235 -0.3905 1.414 0s0.3905 1.0235 0 1.414l-5.75 5.75c-0.0465 0.0466 -0.0984 0.0874 -0.1533 0.1241 -0.0391 0.0261 -0.0794 0.0493 -0.1211 0.0693 -0.0455 0.0219 -0.0926 0.0408 -0.1416 0.0557 -0.0167 0.005 -0.0338 0.0085 -0.0508 0.0127 -0.0156 0.0038 -0.031 0.0086 -0.0468 0.0117 -0.0071 0.0014 -0.0144 0.0017 -0.0215 0.0029 -0.056 0.0097 -0.1132 0.0166 -0.1719 0.0166 -0.0566 0 -0.1119 -0.0066 -0.166 -0.0156 -0.0104 -0.0018 -0.0209 -0.0028 -0.0313 -0.0049 -0.0115 -0.0023 -0.0228 -0.0051 -0.0341 -0.0078 -0.0206 -0.0049 -0.0413 -0.0094 -0.0616 -0.0156 -0.0486 -0.0149 -0.0954 -0.0339 -0.1406 -0.0557 -0.0398 -0.0192 -0.0787 -0.0407 -0.1162 -0.0654 -0.0567 -0.0374 -0.1094 -0.0802 -0.1572 -0.128l-5.75003 -5.75c-0.39053 -0.3905 -0.39053 -1.0235 0 -1.414s1.02355 -0.3905 1.41406 0L11 18.0859V3c0 -0.55228 0.4477 -1 1 -1" stroke-width="1"></path></svg></button><button type="button" id="json-search-close" title="Close (Escape)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" height="16" width="16"><path fill="currentColor" d="m8 8.942666666666666 3.771333333333333 3.771333333333333a0.6666666666666666 0.6666666666666666 0 0 0 0.9426666666666665 -0.9426666666666665L8.942666666666666 8l3.771333333333333 -3.771333333333333a0.6666666666666666 0.6666666666666666 0 0 0 -0.9426666666666665 -0.9426666666666665L8 7.057333333333333 4.228666666666666 3.286A0.6666666666666666 0.6666666666666666 0 0 0 3.286666666666666 4.228666666666666L7.057333333333333 8l-3.771333333333333 3.771333333333333a0.6666666666666666 0.6666666666666666 0 1 0 0.9426666666666665 0.9426666666666665L8 8.942666666666666Z" stroke-width="0.6667"></path></svg></button></div><div id="json-editor"><div id="json-gutter" aria-hidden="true"></div><pre id="json-container" tabindex="0">${content}</pre></div></div>`;
 }

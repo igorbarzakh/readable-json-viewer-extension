@@ -31,7 +31,6 @@
   --line-number: #7d858f;
   --search-match-bg: #ffe500;
   --search-current-bg: #ff6d00;
-
 }
 
 :root[data-theme='light'] {
@@ -58,7 +57,6 @@
   --line-number: #247893;
   --search-match-bg: #ffe500;
   --search-current-bg: #ff6d00;
-
 }
 
 html,
@@ -113,6 +111,7 @@ pre {
   border: 1px solid var(--btn-border);
   background: var(--btn-bg);
   color: var(--text);
+  font-family: system-ui, sans-serif;
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
@@ -132,7 +131,7 @@ pre {
 
 #toggle-theme {
   margin-left: auto;
-  min-width: 72px;
+  width: 73px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -178,7 +177,7 @@ pre {
 }
 
 #toggle-all {
-  width: 111px;
+  width: 113px;
   display: inline-flex;
   align-items: center;
   justify-content: flex-start;
@@ -222,8 +221,11 @@ pre {
 }
 
 .json-search-bar button {
-  padding: 3px 8px;
+  padding: 4px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 #json-search-input {
@@ -233,7 +235,7 @@ pre {
   border: 1px solid var(--btn-border);
   border-radius: 4px;
   color: var(--text);
-  font-family: inherit;
+  font-family: system-ui, sans-serif;
   font-size: 0.92em;
   padding: 3px 8px;
   outline: none;
