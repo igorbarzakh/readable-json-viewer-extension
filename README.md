@@ -6,6 +6,8 @@ Chrome extension that formats JSON documents into a readable code-editor-like vi
 - line numbers with folding-aware jumps
 - light/dark themes
 - one-click `Copy JSON`
+- in-page search with match highlighting and navigation
+- keyboard shortcuts: `Cmd/Ctrl+F` search, `Cmd/Ctrl+C` copy, `Cmd/Ctrl+X` toggle collapse
 
 ## Development
 
@@ -15,13 +17,19 @@ Install dependencies:
 npm install
 ```
 
-Run tests:
+Run unit tests:
 
 ```bash
 npm test
 ```
 
-Run full local validation (`test` + production build):
+Run e2e tests (builds first, opens headed Chrome):
+
+```bash
+npm run test:e2e
+```
+
+Run full validation (build + unit tests + e2e tests):
 
 ```bash
 npm run check
@@ -39,6 +47,10 @@ npm run build
 - `manifest.json`
 - `src/content-script.js` (minified)
 - `src/styles.css` (minified)
+- `src/background.js`
+- `src/popup.html`
+- `src/popup.js`
+- `icons/`
 
 ## Package For Chrome Web Store
 
