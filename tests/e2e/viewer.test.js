@@ -43,8 +43,6 @@ test('copy button copies formatted JSON to clipboard', async ({ jsonPage, extens
 
   await page.locator('#copy-json').click();
 
-  // Button text briefly changes to indicate success
-  await expect(page.locator('#copy-json')).toContainText(/copied/i, { timeout: 2000 }).catch(() => {
-    // icon-only build — just verify no crash
-  });
+  // After click the icon switches to a checkmark (.copy-done-icon)
+  await expect(page.locator('#copy-json .copy-done-icon')).toBeVisible({ timeout: 2000 });
 });
