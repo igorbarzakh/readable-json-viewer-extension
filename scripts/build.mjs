@@ -31,6 +31,8 @@ async function run() {
   await mkdir(DIST_SRC_DIR, { recursive: true });
   await Promise.all([buildContentScript(), buildStyles()]);
   await copyFile('src/background.js', `${DIST_SRC_DIR}/background.js`);
+  await copyFile('src/popup.html', `${DIST_SRC_DIR}/popup.html`);
+  await copyFile('src/popup.js', `${DIST_SRC_DIR}/popup.js`);
   await copyFile('manifest.json', `${DIST_DIR}/manifest.json`);
   await mkdir(`${DIST_DIR}/icons`, { recursive: true });
   await Promise.all([
