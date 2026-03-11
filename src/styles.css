@@ -437,6 +437,7 @@ mark.json-search-hl-current {
 .json-line-content {
   display: inline;
   padding-left: calc(var(--depth) * 2ch);
+  padding-right: 40px;
 }
 
 .json-key {
