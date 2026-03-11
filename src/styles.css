@@ -303,6 +303,7 @@ mark.json-search-hl-current {
 #json-gutter {
   padding: 12px 8px 12px 12px;
   border-right: 1px solid var(--border);
+  background: var(--bg);
   color: var(--line-number);
   text-align: right;
   user-select: none;
@@ -316,6 +317,7 @@ mark.json-search-hl-current {
   z-index: 2;
   align-self: start;
   transition:
+    background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing),
     color var(--theme-transition-duration) var(--theme-transition-easing);
 }
