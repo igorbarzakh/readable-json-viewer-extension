@@ -112,6 +112,9 @@ pre {
   background: var(--btn-bg);
   color: var(--text);
   font-family: system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
@@ -233,7 +236,7 @@ pre {
   min-width: 0;
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
-  border-radius: 4px;
+  border-radius: 6px;
   color: var(--text);
   font-family: system-ui, sans-serif;
   font-size: 0.92em;
@@ -249,10 +252,18 @@ pre {
   border-color: var(--btn-hover-border);
 }
 
+:root[data-theme='light'] #json-search-input::placeholder {
+  color: rgba(0, 0, 0, 0.35);
+}
+
+:root[data-theme='dark'] #json-search-input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
 #json-search-status {
-  color: var(--muted);
+  color: var(--line-number);
   font-size: 0.85em;
-  min-width: 64px;
+  min-width: 82px;
   text-align: center;
   white-space: nowrap;
   user-select: none;
