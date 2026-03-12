@@ -201,6 +201,13 @@ pre {
   white-space: nowrap;
 }
 
+.json-toolbar button:focus-visible,
+.json-search-bar button:focus-visible,
+.toggle-btn:focus-visible {
+  outline: 2px solid var(--btn-hover-border);
+  outline-offset: 2px;
+}
+
 .json-toolbar button:disabled,
 .json-search-bar button:disabled {
   opacity: 0.5;
@@ -303,6 +310,7 @@ mark.json-search-hl-current {
   line-height: var(--code-row-height);
   overflow-x: visible;
   min-width: 0;
+  outline: none;
 }
 
 #json-container.json-raw-mode {
@@ -405,6 +413,7 @@ mark.json-search-hl-current {
   margin: 0;
   padding: 0;
   border: none;
+  border-radius: 4px;
   background: transparent;
   color: var(--toggle);
   cursor: pointer;
