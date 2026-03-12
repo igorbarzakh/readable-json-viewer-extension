@@ -355,6 +355,7 @@ async function initJsonViewer() {
       if (path) {
         toggleCollapsedPath(collapsedPaths, path);
         rerender();
+        document.querySelector(`button.toggle-btn[data-path="${CSS.escape(path)}"]`)?.focus();
       }
     }
   });
