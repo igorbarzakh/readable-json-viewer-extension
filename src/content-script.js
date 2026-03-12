@@ -152,15 +152,55 @@ async function initJsonViewer() {
     return;
   }
 
+  const collapsedPaths = new Set();
+  const formattedJson = getFormattedJsonText(parsed.value);
+
+  // Send activation message with JSON stats after successful parse.
+  const topLevelType = Array.isArray(parsed.value) ? 'array' : 'object';
+  const topLevelCount = Array.isArray(parsed.value)
+    ? parsed.value.length
+    : Object.keys(parsed.value).length;
+  const sendActivated = () => {
+    chrome.runtime.sendMessage({
+      type: 'json-activated',
+      topLevelCount,
+      topLevelType,
+      sizeBytes: formattedJson.length,
+    }).catch(() => {});
+  };
+  if (document.prerendering) {
+    document.addEventListener('prerenderingchange', sendActivated, { once: true });
+  } else {
+    sendActivated();
+  }
+
+  // Re-register when page is restored from bfcache (back/forward navigation).
+  window.addEventListener('pageshow', (e) => {
+    if (e.persisted) sendActivated();
+  });
+
+  // Allow popup to trigger JSON download.
+  chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === 'download-json') {
+      const blob = new Blob([formattedJson], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const filename = window.location.pathname.split('/').pop() || 'data';
+      a.href = url;
+      a.download = filename.endsWith('.json') ? filename : filename + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+  });
+
   // Compute the full expanded line list once; reused on expand-all and for search.
   const allVsLines = computeLines(parsed.value, new Set());
   const maxDigitsEver = Math.max(
     3,
     String(allVsLines[allVsLines.length - 1]?.lineNumber ?? 1).length,
   );
-
-  const collapsedPaths = new Set();
-  const formattedJson = getFormattedJsonText(parsed.value);
 
   const vscroll = createVirtualScroll(VS_LINE_HEIGHT, VS_BUFFER);
   const search = createSearch(allVsLines);
@@ -470,18 +510,7 @@ function bootJsonViewer() {
     return;
   }
 
-  const sendActivated = () => {
-    chrome.runtime.sendMessage({ type: 'json-activated' }).catch(() => {});
-  };
-
   const run = () => {
-    // If Chrome is prerendering the page, defer the icon message until the page
-    // becomes active — otherwise Chrome resets the per-tab icon on activation.
-    if (document.prerendering) {
-      document.addEventListener('prerenderingchange', sendActivated, { once: true });
-    } else {
-      sendActivated();
-    }
     initJsonViewer().catch(() => {});
   };
 
