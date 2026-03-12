@@ -239,8 +239,11 @@ pre {
   border-radius: 6px;
   color: var(--text);
   font-family: system-ui, sans-serif;
-  font-size: 0.92em;
-  padding: 3px 8px;
+  font-size: 14px;
+  padding: 4px 12px;
+  box-sizing: border-box;
+  line-height: 20px;
+  height: 30px;
   outline: none;
   transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
@@ -260,10 +263,18 @@ pre {
   color: rgba(255, 255, 255, 0.35);
 }
 
+:root[data-theme='light'] .json-search-status--empty {
+  color: #e57373 !important;
+}
+
+:root[data-theme='dark'] .json-search-status--empty {
+  color: #ef9a9a !important;
+}
+
 #json-search-status {
   color: var(--line-number);
-  font-size: 0.85em;
-  min-width: 82px;
+  font-size: 14px;
+  min-width: 100px;
   text-align: center;
   white-space: nowrap;
   user-select: none;
@@ -321,7 +332,7 @@ mark.json-search-hl-current {
   -webkit-user-select: none;
   min-width: 3ch;
   line-height: var(--code-row-height);
-  font-size: 0.92em;
+  font-size: 15px;
   box-sizing: border-box;
   position: sticky;
   left: 0;
