@@ -251,7 +251,11 @@ async function initJsonViewer() {
 
   const updateSearchStatus = () => {
     const el = document.getElementById('json-search-status');
-    if (el) el.textContent = search.getStatusText();
+    if (el) {
+      const text = search.getStatusText();
+      el.textContent = text;
+      el.classList.toggle('json-search-status--empty', text === 'No results');
+    }
   };
 
   const scrollToCurrentMatch = () => {
