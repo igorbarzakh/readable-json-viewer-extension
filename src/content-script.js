@@ -300,6 +300,7 @@ async function initJsonViewer() {
     const searchInput = document.getElementById('json-search-input');
     if (searchInput) searchInput.value = '';
     search.clear();
+    updateSearchStatus();
     vscroll.resetWindow();
     const container = document.getElementById('json-container');
     const gutter = document.getElementById('json-gutter');
