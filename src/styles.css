@@ -220,11 +220,16 @@ pre {
 
 .json-search-bar {
   background: var(--panel);
+  border-right: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
   padding: 6px 12px;
-  display: flex;
+  display: inline-flex;
+  width: 560px;
   align-items: center;
-  gap: 6px;
+  align-self: flex-start;
+  box-sizing: border-box;
+  justify-content: space-between;
+  border-radius: 0 0 8px;
   transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing);
@@ -241,21 +246,26 @@ pre {
 #json-search-input {
   flex: 1;
   min-width: 0;
+  max-width: 320px;
   background: var(--btn-bg);
   border: 1px solid var(--btn-border);
   border-radius: 6px;
   color: var(--text);
   font-family: system-ui, sans-serif;
   font-size: 14px;
-  padding: 4px 12px;
+  padding: 3px 12px;
   box-sizing: border-box;
-  line-height: 20px;
-  height: 30px;
+  line-height: 16px;
   outline: none;
   transition:
     background-color var(--theme-transition-duration) var(--theme-transition-easing),
     border-color var(--theme-transition-duration) var(--theme-transition-easing),
     color var(--theme-transition-duration) var(--theme-transition-easing);
+}
+
+.json-search-buttons {
+  display: flex;
+  gap: 6px;
 }
 
 #json-search-input:focus {
