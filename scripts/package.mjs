@@ -17,8 +17,8 @@ function runCommand(command, args) {
 }
 
 async function run() {
-  const pkg = JSON.parse(await readFile("package.json", "utf8"));
-  const zipName = `readable-json-viewer-extension-v${pkg.version}.zip`;
+  const manifest = JSON.parse(await readFile("manifest.json", "utf8"));
+  const zipName = `readable-json-viewer-extension-v${manifest.version}.zip`;
   await mkdir("artifacts", { recursive: true });
   await rm(`artifacts/${zipName}`, { force: true });
 
