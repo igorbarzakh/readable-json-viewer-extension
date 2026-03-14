@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Readable JSON Viewer",
   "version": "1.0.1",
-  "description": "Formats JSON documents into a readable, collapsible tree view.",
+  "description": "Readable JSON Viewer transforms raw JSON responses into a clean, code-editor-like tree view directly in your browser tab.",
   "action": {
     "default_popup": "src/popup.html",
     "default_icon": {
@@ -24,7 +24,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["*://*/*", "file:///*"],
+      "matches": ["<all_urls>"],
       "js": ["src/content-script.js"],
       "css": ["src/styles.css"],
       "run_at": "document_start"
