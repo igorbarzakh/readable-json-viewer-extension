@@ -1,6 +1,6 @@
 :root {
   color-scheme: dark light;
-  --code-row-height: 19px;
+  --code-row-height: 20px;
   --theme-transition-duration: 0.2s;
   --theme-transition-easing: ease-in-out;
   --error: #f48771;
