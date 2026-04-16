@@ -72,3 +72,13 @@ test('copy button copies formatted JSON to clipboard', async ({ jsonPage, extens
   // After click the icon switches to a checkmark (.copy-done-icon)
   await expect(page.locator('#copy-json .copy-done-icon')).toBeVisible({ timeout: 2000 });
 });
+
+test('does not apply viewer theme or reset page styles on non-JSON pages', async ({ htmlPage }) => {
+  const page = await htmlPage();
+
+  await expect(page.locator('#json-editor')).toHaveCount(0);
+  await expect(page.locator('html')).not.toHaveAttribute('data-theme', /.+/);
+
+  const bodyMargin = await page.evaluate(() => getComputedStyle(document.body).marginTop);
+  expect(bodyMargin).toBe('8px');
+});

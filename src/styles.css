@@ -1,4 +1,4 @@
-:root {
+:root[data-readable-json-viewer-active] {
   color-scheme: dark light;
   --code-row-height: 20px;
   --theme-transition-duration: 0.2s;
@@ -7,7 +7,7 @@
   --error-mark-bg: rgba(244, 135, 113, 0.2);
 }
 
-:root[data-theme='dark'] {
+:root[data-readable-json-viewer-active][data-theme='dark'] {
   --bg: #212121;
   --panel: #2a2a2a;
   --text: #eeffffff;
@@ -33,7 +33,7 @@
   --search-current-bg: #ff6d00;
 }
 
-:root[data-theme='light'] {
+:root[data-readable-json-viewer-active][data-theme='light'] {
   --bg: #ffffff;
   --panel: #f5f8fc;
   --text: #1f3b63;
@@ -59,8 +59,8 @@
   --search-current-bg: #ff6d00;
 }
 
-html,
-body {
+html[data-readable-json-viewer-active],
+html[data-readable-json-viewer-active] body {
   margin: 0;
   padding: 0;
   background: var(--bg);
@@ -78,7 +78,7 @@ body {
   transition: background-color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
-pre {
+.json-viewer pre {
   font-family: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
 }
 
@@ -272,19 +272,19 @@ pre {
   border-color: var(--btn-hover-border);
 }
 
-:root[data-theme='light'] #json-search-input::placeholder {
+:root[data-readable-json-viewer-active][data-theme='light'] #json-search-input::placeholder {
   color: rgba(0, 0, 0, 0.35);
 }
 
-:root[data-theme='dark'] #json-search-input::placeholder {
+:root[data-readable-json-viewer-active][data-theme='dark'] #json-search-input::placeholder {
   color: rgba(255, 255, 255, 0.35);
 }
 
-:root[data-theme='light'] .json-search-status--empty {
+:root[data-readable-json-viewer-active][data-theme='light'] .json-search-status--empty {
   color: #e57373 !important;
 }
 
-:root[data-theme='dark'] .json-search-status--empty {
+:root[data-readable-json-viewer-active][data-theme='dark'] .json-search-status--empty {
   color: #ef9a9a !important;
 }
 
@@ -522,8 +522,8 @@ mark.json-search-hl-current {
   transition: color var(--theme-transition-duration) var(--theme-transition-easing);
 }
 
-:root[data-theme='dark'] .json-quote,
-:root[data-theme='dark'] .json-string-quote {
+:root[data-readable-json-viewer-active][data-theme='dark'] .json-quote,
+:root[data-readable-json-viewer-active][data-theme='dark'] .json-string-quote {
   color: var(--punctuation);
 }
 

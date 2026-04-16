@@ -10,6 +10,11 @@ function startJsonServer() {
   return new Promise((resolve) => {
     const server = http.createServer((req, res) => {
       const url = new URL(req.url, 'http://localhost');
+      if (url.pathname === '/html') {
+        res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+        res.end('<!doctype html><html><body><pre>{"plain":true}</pre></body></html>');
+        return;
+      }
       const json = url.searchParams.get('data') ?? '{}';
       res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
       res.end(json);
@@ -50,6 +55,19 @@ export const test = base.extend({
       return page;
     }
     await use(openJson);
+    for (const page of opened) await page.close().catch(() => {});
+  },
+
+  htmlPage: async ({ extensionContext, jsonServer }, use) => {
+    const opened = [];
+    async function openHtml() {
+      const page = await extensionContext.newPage();
+      opened.push(page);
+      await page.goto(`http://127.0.0.1:${jsonServer.port}/html`);
+      await page.waitForSelector('pre', { timeout: 8000 });
+      return page;
+    }
+    await use(openHtml);
     for (const page of opened) await page.close().catch(() => {});
   },
 });

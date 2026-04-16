@@ -25,12 +25,15 @@ import { createVirtualScroll } from './virtual-scroll.js';
 import { createSearch } from './search.js';
 
 const _THEME_KEY = 'json-viewer-theme-mode';
+const _ACTIVE_ATTR = 'data-readable-json-viewer-active';
 const VS_LINE_HEIGHT = 19; // must match --code-row-height
 const VS_BUFFER = 60; // lines rendered above/below viewport
+const _isJsonPage = isJsonDocument(window.location.href, document.contentType);
 
 // All document_start side-effects are gated on isJsonDocument so we don't
 // touch non-JSON pages at all.
-if (isJsonDocument(window.location.href, document.contentType)) {
+if (_isJsonPage) {
+  document.documentElement.setAttribute(_ACTIVE_ATTR, '1');
   // Apply theme synchronously to prevent flash.
   // localStorage is per-origin but available instantly; system preference is the fallback.
   try {
@@ -50,16 +53,14 @@ if (isJsonDocument(window.location.href, document.contentType)) {
 // Kick off extension storage read immediately; will be used to sync cross-origin.
 // Only needed on JSON pages, but the cost of an early resolve is negligible.
 // Errors (e.g. extension context invalidated) are caught inside initJsonViewer.
-const _themePromise = isJsonDocument(window.location.href, document.contentType)
-  ? chrome.storage.local.get(_THEME_KEY)
-  : null;
+const _themePromise = _isJsonPage ? chrome.storage.local.get(_THEME_KEY) : null;
 
 // Hide the page body immediately (document_start) to prevent flash of the
 // browser's raw JSON view before our viewer takes over. Removed synchronously
 // inside initJsonViewer() right after the single async pause, so the browser
 // batches the unhide with the body replacement — no visible intermediate state.
 const _flashGuard = (() => {
-  if (!isJsonDocument(window.location.href, document.contentType)) return null;
+  if (!_isJsonPage) return null;
   const meta = document.createElement('meta');
   meta.name = 'viewport';
   meta.content = 'width=device-width, initial-scale=1, maximum-scale=1';
@@ -80,7 +81,7 @@ function collectPaths(value, path, into) {
 }
 
 async function initJsonViewer() {
-  if (!document.body || !isJsonDocument(window.location.href, document.contentType)) {
+  if (!document.body || !_isJsonPage) {
     return;
   }
 
@@ -512,7 +513,7 @@ async function initJsonViewer() {
 }
 
 function bootJsonViewer() {
-  if (!isJsonDocument(window.location.href, document.contentType)) {
+  if (!_isJsonPage) {
     return;
   }
 
